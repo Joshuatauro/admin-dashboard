@@ -3,7 +3,18 @@ module.exports = {
   purge: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
   darkMode: false, // or 'media' or 'class'
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        raleway: ['raleway'],
+        rubik: ['rubik']
+      },
+      colors: {
+        'gray-primary': '#1F2937',
+        'red-primary': '#D13639',
+        'blue-primary': '#2A2D41',
+        'blue-secondary': '#212332'
+      }
+    },
   },
   variants: {
     extend: {},

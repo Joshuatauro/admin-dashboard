@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#main{
+  transition: 200ms all;
+}
+
+#input:focus ~ #main,
+#input:valid ~ #main{
+  top: 0.5rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  margin: 0;
+  color: #9CA3AF;
+}
+
+#input::-webkit-scrollbar {
+  display: none;
+
+}
+
+.input::-webkit-scrollbar {
+  display: none;
+
+}
+
+.rdw-editor-toolbar{
+  background: #2A2D41 !important;
+  border: none !important;
+}
+
+.public-DraftEditorPlaceholder-inner{
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700
+
+}

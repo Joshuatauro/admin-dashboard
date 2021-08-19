@@ -1,82 +1,120 @@
 import Head from 'next/head'
+import Card from '../components/Card'
+import Navbar from '../components/Navbar'
+import Masonry, {ResponsiveMasonry} from "react-responsive-masonry"
+import { TrendingUpIcon, CurrencyDollarIcon, GiftIcon, UserAddIcon, TruckIcon, ViewGridIcon, HomeIcon, ShoppingBagIcon } from '@heroicons/react/outline'
+import { StarIcon } from '@heroicons/react/solid'
+import ReviewPreview from '../components/ReviewPreview'
+import NewUserPreview from '../components/NewUserPreview'
+
 
 export default function Home() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen py-2">
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <div className="flex">
+      <Navbar />
+      <div className="w-full min-h-screen bg-blue-secondary">
+        <div className="w-11/12 m-auto my-5">
+          <h1 className=" font-extrabold text-white text-2xl uppercase ">Hello Joshua</h1>
+          <p className="text-gray-400 text-sm ">Here's what we've got for you today</p>
 
-      <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
-        <h1 className="text-6xl font-bold">
-          Welcome to{' '}
-          <a className="text-blue-600" href="https://nextjs.org">
-            Next.js!
-          </a>
-        </h1>
+          <ResponsiveMasonry columnsCountBreakPoints={{350: 1, 1020: 2}}>
+                <Masonry columnsCount={2} gutter={20}>
+                  <div className="bg-blue-primary rounded-lg py-5 mt-5">
+                    <div className="px-5">
+                      <h1 className="text-white text-xl uppercase font-bold ">Sales Overview</h1>
+                      <div className="grid gap-3 grid-cols-2 ">
+                        <Card header="Total Revenue" value="$8500" icon={<CurrencyDollarIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
+                        <Card header="Total Profit" value={54} icon={<TrendingUpIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-blue-primary rounded-lg py-5 mt-5">
+                    <div className="px-5">
+                      <h1 className="text-white text-xl uppercase font-bold ">Current Statistics</h1>
+                      <div className="grid gap-y-4 gap-x-3 grid-cols-2 ">
+                        <Card header="New Orders" value="456" icon={<ShoppingBagIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />} />
+                        <Card header="New signups" value={54} icon={<UserAddIcon className="h-9 w-10 py-2 pl-2 pr-1 text-white bg-green-400 rounded-lg mr-2" />} />
+                        <Card header="Orders Delivered" value="40" icon={<HomeIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
+                        <Card header="Orders En Route" value="30" icon={<TruckIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
+                        <Card header="Total Products" value="30" icon={<ViewGridIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
+                        <Card header="Products On Sale" value="30" icon={<GiftIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-blue-primary rounded-lg pt-5 pb-2 ">
+                    <div className="px-5">
+                      <h1 className="text-white text-xl uppercase font-bold ">Latest Signups</h1>
+                      <ul className="mt-3">
+                        <NewUserPreview />
+                        <NewUserPreview />
+                        <NewUserPreview />
+                      </ul>
+                    </div>
+                  </div>
 
-        <p className="mt-3 text-2xl">
-          Get started by editing{' '}
-          <code className="p-3 font-mono text-lg bg-gray-100 rounded-md">
-            pages/index.js
-          </code>
-        </p>
-
-        <div className="flex flex-wrap items-center justify-around max-w-4xl mt-6 sm:w-full">
-          <a
-            href="https://nextjs.org/docs"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Documentation &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Find in-depth information about Next.js features and API.
-            </p>
-          </a>
-
-          <a
-            href="https://nextjs.org/learn"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Learn &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Learn about Next.js in an interactive course with quizzes!
-            </p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Examples &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Discover and deploy boilerplate example Next.js projects.
-            </p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className="p-6 mt-6 text-left border w-96 rounded-xl hover:text-blue-600 focus:text-blue-600"
-          >
-            <h3 className="text-2xl font-bold">Deploy &rarr;</h3>
-            <p className="mt-4 text-xl">
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+                  <div className="bg-blue-primary rounded-lg pt-5 pb-2 ">
+                    <div className="px-5">
+                      <h1 className="text-white text-xl uppercase font-bold ">Latest Reviews</h1>
+                      <ul>
+                        <ReviewPreview />
+                        <ReviewPreview />
+                      </ul>
+                    </div>
+                  </div>
+                  <div className="bg-blue-primary rounded-lg  ">
+                    <div className="px-5 py-5">
+                      <h1 className="text-white text-xl uppercase font-bold ">Latest Orders</h1>
+                      <ul className="mt-4">
+                        <li className="flex items-center justify-between mt-3">
+                          <div  className="flex items-center">
+                            <span className="h-2 w-2 rounded-full mr-3 bg-green-500"></span>
+                            <h1 className="text-sm text-gray-400 font-rubik">ORDER606f319cfcd26158cce8abc6</h1>
+                          </div>
+                          <p className="text-white text-sm">25th Aug</p>
+                        </li>
+                        <li className="flex items-center justify-between mt-3">
+                          <div  className="flex items-center">
+                            <span className="h-2 w-2 rounded-full mr-3 bg-yellow-500"></span>
+                            <h1 className="text-sm text-gray-400 font-rubik">ORDER606f319cfcd26158cce8abc6</h1>
+                          </div>
+                          <p className="text-white text-sm">25th Aug</p>
+                        </li>
+                        <li className="flex items-center justify-between mt-3">
+                          <div  className="flex items-center">
+                            <span className="h-2 w-2 rounded-full mr-3 bg-red-500"></span>
+                            <h1 className="text-sm text-gray-400 font-rubik">ORDER606f319cfcd26158cce8abc6</h1>
+                          </div>
+                          <p className="text-white text-sm">25th Aug</p>
+                        </li>
+                        <li className="flex items-center justify-between mt-3">
+                          <div  className="flex items-center">
+                            <span className="h-2 w-2 rounded-full mr-3 bg-green-500"></span>
+                            <h1 className="text-sm text-gray-400 font-rubik">ORDER606f319cfcd26158cce8abc6</h1>
+                          </div>
+                          <p className="text-white text-sm">25th Aug</p>
+                        </li>
+                        <li className="flex items-center justify-between mt-3">
+                          <div  className="flex items-center">
+                            <span className="h-2 w-2 rounded-full mr-3 bg-yellow-500"></span>
+                            <h1 className="text-sm text-gray-400 font-rubik">ORDER606f319cfcd26158cce8abc6</h1>
+                          </div>
+                          <p className="text-white text-sm">25th Aug</p>
+                        </li>
+                        <li className="flex items-center justify-between mt-3">
+                          <div  className="flex items-center">
+                            <span className="h-2 w-2 rounded-full mr-3 bg-red-500"></span>
+                            <h1 className="text-sm text-gray-400 font-rubik">ORDER606f319cfcd26158cce8abc6</h1>
+                          </div>
+                          <p className="text-white text-sm">25th Aug</p>
+                        </li>
+                        
+                      </ul>
+                    </div>
+                  </div>
+                </Masonry>
+            </ResponsiveMasonry>
         </div>
-      </main>
-
-      <footer className="flex items-center justify-center w-full h-24 border-t">
-        <a
-          className="flex items-center justify-center"
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className="h-4 ml-2" />
-        </a>
-      </footer>
+      </div>
     </div>
   )
 }
