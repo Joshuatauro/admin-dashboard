@@ -53,17 +53,6 @@ const Navbar = () => {
               </li>
             </a>
           </Link>
-          <Link href="/add">
-            <a>
-              <li className={`flex items-center font-bold text-xs transition-all duration-150  rounded-md py-2 ${path === 'add' ? 'text-white': "text-gray-400" } hover:text-white my-1 px-2`}>
-                <svg
-                xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                </svg>
-                <h1 className="uppercase">Add product</h1>
-              </li>
-            </a>
-          </Link>
         </ul>
           <Link href="/settings">
             <a>

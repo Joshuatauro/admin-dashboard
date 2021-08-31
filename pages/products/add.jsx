@@ -1,12 +1,19 @@
 import React, { useState } from 'react'
-import Masonry, { ResponsiveMasonry } from 'react-responsive-masonry'
 import Navbar from '../../components/Navbar'
-import { useDropzone } from 'react-dropzone'
-import dynamic from 'next/dynamic'
-import { EditorState } from 'draft-js';
-import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css' 
+
 import { ChevronDownIcon } from '@heroicons/react/outline'
-import { FaBold } from 'react-icons/fa'
+import { RefreshIcon } from '@heroicons/react/solid'
+
+import dynamic from 'next/dynamic'
+import {useRouter} from 'next/router'
+
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css' 
+import { EditorState } from 'draft-js'
+import { convertFromRaw, convertToRaw } from 'draft-js'
+import { useDropzone } from 'react-dropzone'
+import axios from 'axios'
+
+
 const Editor = dynamic(
   () => import('react-draft-wysiwyg').then(module => module.Editor),
   {
@@ -15,13 +22,17 @@ const Editor = dynamic(
 )
 
 const add = () => {
+  const router = useRouter()
+
+  const [editorState, setEditorState] = useState(EditorState.createEmpty())
+
   const [name, setName] = useState()
-  const [price, setPrice] = useState()
-  const [desc, setDesc] = useState()
+  const [price, setPrice] = useState(100)
   const [files, setFiles] = useState()
   const [url, setUrl] = useState()
   const [seller, setSeller] = useState()
   const [salePrice, setSalePrice] = useState()
+  const [base64Image, setBase64] = useState()
 
   const [imageReceived, setImageReceived] = useState(false)
 
@@ -31,6 +42,8 @@ const add = () => {
   const [saleOpen, isSaleOpen] = useState(false)
   const [saleValue, setSaleValue] = useState()
 
+  const [isLoading, setIsLoading] = useState(false)
+
   const { getRootProps, getInputProps } = useDropzone({
     accept:"image/*",
     onDrop: (acceptedFile) => {
@@ -38,7 +51,14 @@ const add = () => {
         acceptedFile.map(file => Object.assign(file, {
           preview: URL.createObjectURL(file)
         }))
-      )
+        )
+        const file = acceptedFile[0]
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setBase64(event.target.result)
+        }
+        // setBase64(reader.readAsDataURL(file))
+        reader.readAsDataURL(file);
       if(files){
         setImageReceived(true)
       }
@@ -55,7 +75,32 @@ const add = () => {
     isSaleOpen(false)
   }
 
-  const viewing = true
+  const onEditorStateChange = (editorState) => {
+    setEditorState(editorState)
+  }
+
+  const addNewProduct = async(e) => {
+    e.preventDefault()
+    setIsLoading(true)
+    const productObject = {
+      desc: convertToRaw(editorState.getCurrentContent()),
+      title: name,
+      price,
+      salePrice,
+      onSale: saleValue,
+      sellerName: seller,
+      category: categoryValue,
+      imgURL: url ? url : undefined,
+      base64Image
+    }
+
+    const { data } = await axios.post('http://localhost:5000/api/products/admin/add',  productObject )
+    if(data.isAdded) {
+      setIsLoading(false)
+      router.push('/products')
+    }
+  }
+
   return (
     <div className="flex">
     <Navbar />
@@ -63,10 +108,9 @@ const add = () => {
       <div className="w-11/12 m-auto py-9">
         <h1 className="text-2xl font-bold">New product</h1>
         <p className="text-gray-400 text-sm">Adding new products is now just a matter of minutes!</p>
-
           <div className="rounded-lg py-5">
             <div className="">
-              <form action="" className=" mb-16" >
+              <form action="" className=" mb-16" onSubmit={addNewProduct}>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="relative">
                     <input value={name} onChange={e => setName(e.target.value)} required type="text" name="email" id="input" className="pt-3 h-16 w-full focus:outline-none px-3 font-semibold bg-blue-primary rounded-md text-sm" />
@@ -88,7 +132,8 @@ const add = () => {
                 <div className="grid grid-cols-3 gap-x-3  my-3">
                   <div className="relative col-span-2 h-full">
                     <Editor 
-                    className=" h-5"
+                    editorState={editorState}
+                    onEditorStateChange={onEditorStateChange}
                     id="input"
                     placeholder="DESCRIPTION"
                     wrapperClassName="flex flex-col h-full"
@@ -102,8 +147,7 @@ const add = () => {
                           className: undefined,
                           component: undefined,
                           dropdownClassName: undefined,
-                          options: ['bold', 'italic', 'underline', 'strikethrough', 'monospace', 'superscript', 'subscript'],
-                          // bold: { icon: 'bold', className: undefined },
+                          options: ['bold', 'italic', 'underline', 'strikethrough'  , 'superscript', 'subscript'],
                           
                         },
                         list: {
@@ -116,12 +160,7 @@ const add = () => {
                         },
                       }
                     }
-
-
                     />
-                      {/* <textarea  required name="email" id="input" className="pt-6 h-full w-full resize-y focus:outline-none px-3  text-sm font-semibold bg-blue-primary rounded-md" />
-                      <label id="main" htmlFor="email" className="main-label text-header absolute left-3 top-4 font-bold text-xs">DESCRIPTION</label> */}
-
                   </div>
                   {
                     imageReceived ? (
@@ -164,7 +203,7 @@ const add = () => {
                           categoryOpen && (
                             <ul className="w-full absolute top-full mt-3  py-2 rounded-md bg-blue-primary">
                               <li onClick={() => handleCategoryChange('KEYBOARD')} className="py-2 px-2 w-11/12 m-auto hover:bg-blue-secondary cursor-pointer text-sm uppercase">KEYBOARD</li>
-                              <li onClick={() => handleCategoryChange('GPU')} className="py-2 px-2 w-11/12 m-auto hover:bg-blue-secondary cursor-pointer text-sm uppercase">GPU</li>
+                              <li onClick={() => handleCategoryChange('MONITOR')} className="py-2 px-2 w-11/12 m-auto hover:bg-blue-secondary cursor-pointer text-sm uppercase">MONITOR</li>
                               <li onClick={() => handleCategoryChange('MOUSE')} className="py-2 px-2 w-11/12 m-auto hover:bg-blue-secondary cursor-pointer text-sm uppercase">MICE</li>
                               <li onClick={() => handleCategoryChange('HEADPHONE')} className="py-2 px-2 w-11/12 m-auto hover:bg-blue-secondary cursor-pointer text-sm uppercase">HEADPHONE</li>
                             </ul>
@@ -189,7 +228,15 @@ const add = () => {
                     </div>
                   </div>
                 </div>
-                <button className="mt-3 bg-green-600 px-8 rounded-md py-3">ADD PRODUCT</button>
+                <button type="submit" className="mt-3 bg-green-600 w-20 flex items-center justify-center text-sm font-bold rounded-md py-3">
+                  {
+                    isLoading ? (
+                      <RefreshIcon className="text-white h-5 w-5 animate-spin" /> 
+                    ) : (
+                      'ADD'
+                    )
+                  }
+                  </button>
               </form>
             </div>
           </div>
