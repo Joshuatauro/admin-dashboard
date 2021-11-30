@@ -6,9 +6,21 @@ import { TrendingUpIcon, CurrencyDollarIcon, GiftIcon, UserAddIcon, TruckIcon, V
 import { StarIcon } from '@heroicons/react/solid'
 import ReviewPreview from '../components/ReviewPreview'
 import NewUserPreview from '../components/NewUserPreview'
+import axios from 'axios'
+import OrderPreview from '../components/OrderPreview'
 
-
-export default function Home() {
+export const getServerSideProps = async() => {
+  const statisticsData = await axios.get('http://localhost:5000/api/admin/statistics')
+  const userSignupsData = await axios.get('http://localhost:5000/api/admin/statistics/sign-ups')
+  const reviewData = await axios.get('http://localhost:5000/api/admin/statistics/reviews')
+  const ordersData = await axios.get('http://localhost:5000/api/admin/statistics/orders')
+  return {
+    props: {statistics: statisticsData.data, signups: userSignupsData.data.userSignups, reviews: reviewData.data.reviews, orders: ordersData.data.orders}
+  } 
+}
+export default function Home({statistics, signups, reviews, orders}) {
+  const {totalOrderAmount, totalOrderCount, totalOrdersDelivered, totalUserCount} = statistics
+  console.log(reviews)
   return (
     <div className="flex">
       <Navbar />
@@ -23,21 +35,19 @@ export default function Home() {
                     <div className="px-5">
                       <h1 className="text-white text-xl uppercase font-bold ">Sales Overview</h1>
                       <div className="grid gap-3 grid-cols-2 ">
-                        <Card header="Total Revenue" value="$8500" icon={<CurrencyDollarIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
-                        <Card header="Total Profit" value={54} icon={<TrendingUpIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
+                        <Card header="Total Revenue" value={totalOrderAmount} icon={<CurrencyDollarIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
+                        <Card header="Total Profit" value={Math.round(0.05 * totalOrderAmount)} icon={<TrendingUpIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
                       </div>
                     </div>
                   </div>
                   <div className="bg-blue-primary rounded-lg py-5 mt-5">
                     <div className="px-5">
-                      <h1 className="text-white text-xl uppercase font-bold ">Current Statistics</h1>
+                      <h1 className="text-white text-xl uppercase font-bold ">Statistics</h1>
                       <div className="grid gap-y-4 gap-x-3 grid-cols-2 ">
-                        <Card header="New Orders" value="456" icon={<ShoppingBagIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />} />
-                        <Card header="New signups" value={54} icon={<UserAddIcon className="h-9 w-10 py-2 pl-2 pr-1 text-white bg-green-400 rounded-lg mr-2" />} />
-                        <Card header="Orders Delivered" value="40" icon={<HomeIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
-                        <Card header="Orders En Route" value="30" icon={<TruckIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
-                        <Card header="Total Products" value="30" icon={<ViewGridIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
-                        <Card header="Products On Sale" value="30" icon={<GiftIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
+                        <Card header="Total Orders" value={totalOrderCount} icon={<ShoppingBagIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />} />
+                        <Card header="Total Users" value={totalUserCount} icon={<UserAddIcon className="h-9 w-10 py-2 pl-2 pr-1 text-white bg-green-400 rounded-lg mr-2" />} />
+                        <Card header="Orders Delivered" value={totalOrdersDelivered} icon={<HomeIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
+                        <Card header="Orders En Route" value={totalOrderCount - totalOrdersDelivered} icon={<TruckIcon className="h-9 w-9 p-2 text-white bg-green-400 rounded-lg mr-2" />}  />
                       </div>
                     </div>
                   </div>
@@ -45,9 +55,7 @@ export default function Home() {
                     <div className="px-5">
                       <h1 className="text-white text-xl uppercase font-bold ">Latest Signups</h1>
                       <ul className="mt-3">
-                        <NewUserPreview />
-                        <NewUserPreview />
-                        <NewUserPreview />
+                        {signups.map(({name, email, created_at}) => <NewUserPreview name={name} email={email} createdAt={created_at} /> )}
                       </ul>
                     </div>
                   </div>
@@ -56,8 +64,8 @@ export default function Home() {
                     <div className="px-5">
                       <h1 className="text-white text-xl uppercase font-bold ">Latest Reviews</h1>
                       <ul>
-                        <ReviewPreview />
-                        <ReviewPreview />
+                        {reviews.map(({name, title, rating, review, created_at}) => <ReviewPreview name={name} createdAt={created_at} title={title} rating={rating} review={review} />)}
+
                       </ul>
                     </div>
                   </div>
@@ -65,49 +73,7 @@ export default function Home() {
                     <div className="px-5 py-5">
                       <h1 className="text-white text-xl uppercase font-bold ">Latest Orders</h1>
                       <ul className="mt-4">
-                        <li className="flex items-center justify-between mt-3">
-                          <div  className="flex items-center">
-                            <span className="h-2 w-2 rounded-full mr-3 bg-green-500"></span>
-                            <h1 className="text-sm text-gray-400 font-rubik">ORDER606f319cfcd26158cce8abc6</h1>
-                          </div>
-                          <p className="text-white text-sm">25th Aug</p>
-                        </li>
-                        <li className="flex items-center justify-between mt-3">
-                          <div  className="flex items-center">
-                            <span className="h-2 w-2 rounded-full mr-3 bg-yellow-500"></span>
-                            <h1 className="text-sm text-gray-400 font-rubik">ORDER606f319cfcd26158cce8abc6</h1>
-                          </div>
-                          <p className="text-white text-sm">25th Aug</p>
-                        </li>
-                        <li className="flex items-center justify-between mt-3">
-                          <div  className="flex items-center">
-                            <span className="h-2 w-2 rounded-full mr-3 bg-red-500"></span>
-                            <h1 className="text-sm text-gray-400 font-rubik">ORDER606f319cfcd26158cce8abc6</h1>
-                          </div>
-                          <p className="text-white text-sm">25th Aug</p>
-                        </li>
-                        <li className="flex items-center justify-between mt-3">
-                          <div  className="flex items-center">
-                            <span className="h-2 w-2 rounded-full mr-3 bg-green-500"></span>
-                            <h1 className="text-sm text-gray-400 font-rubik">ORDER606f319cfcd26158cce8abc6</h1>
-                          </div>
-                          <p className="text-white text-sm">25th Aug</p>
-                        </li>
-                        <li className="flex items-center justify-between mt-3">
-                          <div  className="flex items-center">
-                            <span className="h-2 w-2 rounded-full mr-3 bg-yellow-500"></span>
-                            <h1 className="text-sm text-gray-400 font-rubik">ORDER606f319cfcd26158cce8abc6</h1>
-                          </div>
-                          <p className="text-white text-sm">25th Aug</p>
-                        </li>
-                        <li className="flex items-center justify-between mt-3">
-                          <div  className="flex items-center">
-                            <span className="h-2 w-2 rounded-full mr-3 bg-red-500"></span>
-                            <h1 className="text-sm text-gray-400 font-rubik">ORDER606f319cfcd26158cce8abc6</h1>
-                          </div>
-                          <p className="text-white text-sm">25th Aug</p>
-                        </li>
-                        
+                        {orders.map(({id, created_at, is_delivered}) => <OrderPreview id={id} createdAt={created_at} isDelivered={is_delivered} />)}
                       </ul>
                     </div>
                   </div>

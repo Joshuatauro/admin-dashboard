@@ -4,7 +4,7 @@ import Navbar from '../../components/Navbar'
 import ProductPreview from '../../components/ProductPreview'
 import axios from 'axios'
 
-export const getStaticProps = async() => {
+export const getServerSideProps = async() => {
   const { data } = await axios.get('http://localhost:5000/api/admin/products')
   return {
     props: {products: data.products}
@@ -30,7 +30,7 @@ const index = ({products}) => {
         </div>
         <div className="mt-10 grid gap-3 grid-cols-2">
           {
-            products.map(({name, sale_price, price, url})=> <ProductPreview name={name} price={price} url={url} />)
+            products.map(({name, sale_price, price, url, id, is_sale})=> <ProductPreview name={name} id={id} key={id} price={price} salePrice={sale_price} url={url} onSale={is_sale} />)
           }
         </div>
       </div>

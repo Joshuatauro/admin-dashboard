@@ -1,16 +1,14 @@
 import React, { useState } from 'react'
 import Navbar from '../../components/Navbar'
-
+import dynamic from 'next/dynamic'
+import { useRouter } from 'next/router'
 import { ChevronDownIcon } from '@heroicons/react/outline'
 import { RefreshIcon } from '@heroicons/react/solid'
-
-import dynamic from 'next/dynamic'
-import {useRouter} from 'next/router'
 
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css' 
 import { EditorState } from 'draft-js'
 import { convertFromRaw, convertToRaw } from 'draft-js'
-import { useDropzone } from 'react-dropzone'
+
 import axios from 'axios'
 
 
@@ -21,49 +19,34 @@ const Editor = dynamic(
   }
 )
 
-const add = () => {
+export const getServerSideProps = async(context) => {
+  const { data } = await axios.get(`http://localhost:5000/api/admin/products/${context.params.id}`)
+  return {
+    props: {productDetails: data.productDetails, id: context.params.id}
+  } 
+}
+
+const add = ({productDetails, id}) => {
   const router = useRouter()
 
-  const [editorState, setEditorState] = useState(EditorState.createEmpty())
+  
+  const [editorState, setEditorState] = useState(EditorState.createWithContent(
+                                                  convertFromRaw(productDetails.description)
+                                                ))
 
-  const [name, setName] = useState()
-  const [price, setPrice] = useState(100)
-  const [files, setFiles] = useState()
-  const [url, setUrl] = useState()
-  const [seller, setSeller] = useState()
-  const [salePrice, setSalePrice] = useState()
-  const [base64Image, setBase64] = useState()
-
-  const [imageReceived, setImageReceived] = useState(false)
+  const [name, setName] = useState(productDetails.name)
+  const [price, setPrice] = useState(productDetails.price)
+  const [url, setUrl] = useState(productDetails.url)
+  const [seller, setSeller] = useState(productDetails.seller_name)
+  const [salePrice, setSalePrice] = useState(productDetails.sale_price)
 
   const [categoryOpen, isCategoryOpen] = useState(false)
-  const [categoryValue, setCategoryValue] = useState()
+  const [categoryValue, setCategoryValue] = useState(productDetails.category)
 
   const [saleOpen, isSaleOpen] = useState(false)
-  const [saleValue, setSaleValue] = useState()
+  const [saleValue, setSaleValue] = useState(productDetails.is_sale)
 
   const [isLoading, setIsLoading] = useState(false)
-
-  const { getRootProps, getInputProps } = useDropzone({
-    accept:"image/*",
-    onDrop: (acceptedFile) => {
-      setFiles(
-        acceptedFile.map(file => Object.assign(file, {
-          preview: URL.createObjectURL(file)
-        }))
-        )
-        const file = acceptedFile[0]
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          setBase64(event.target.result)
-        }
-        // setBase64(reader.readAsDataURL(file))
-        reader.readAsDataURL(file);
-      if(files){
-        setImageReceived(true)
-      }
-    }
-  })
 
   const handleCategoryChange = (name) => {
     setCategoryValue(name)
@@ -79,38 +62,39 @@ const add = () => {
     setEditorState(editorState)
   }
 
-  const addNewProduct = async(e) => {
+  const editProduct = async(e) => {
     e.preventDefault()
     setIsLoading(true)
-    const productObject = {
-      desc: convertToRaw(editorState.getCurrentContent()),
-      title: name,
-      price,
+    const updatedProductObject = {
+      id,
+      name,
       salePrice,
-      onSale: saleValue,
-      sellerName: seller,
-      category: categoryValue,
-      imgURL: url ? url : undefined,
-      base64Image
-    }
+      price, 
+      desc: convertToRaw(editorState.getCurrentContent()),
+      seller,
+      saleValue,
+      categoryValue,
 
-    const { data } = await axios.post('http://localhost:5000/api/admin/products/add',  productObject )
-    if(data.isAdded) {
-      setIsLoading(false)
+    }
+    const {data} = await axios.post(`http://localhost:5000/api/admin/products/update`, updatedProductObject ,{withCredentials: true})
+    if(data.wasSuccess){
       router.push('/products')
+    } else {
+      isLoading(false)
     }
   }
+
+
 
   return (
     <div className="flex">
     <Navbar />
     <div className="w-full min-h-screen bg-blue-secondary text-white">
       <div className="w-11/12 m-auto py-9">
-        <h1 className="text-2xl font-bold">New product</h1>
-        <p className="text-gray-400 text-sm">Adding new products is now just a matter of minutes!</p>
+        <h1 className="text-2xl font-bold">Edit {name} </h1>
           <div className="rounded-lg py-5">
             <div className="">
-              <form action="" className=" mb-16" onSubmit={addNewProduct}>
+              <form action="" onSubmit={editProduct} className=" mb-16">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="relative">
                     <input value={name} onChange={e => setName(e.target.value)} required type="text" name="email" id="input" className="pt-3 h-16 w-full focus:outline-none px-3 font-semibold bg-blue-primary rounded-md text-sm" />
@@ -118,12 +102,12 @@ const add = () => {
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div className="relative">
-                      <input value={price} onChange={e => setPrice(e.target.value)} required name="email" id="input" className="pt-3 h-16 w-full focus:outline-none px-3 font-rubik font-medium text-sm bg-blue-primary rounded-md" />
+                      <input value={price} onChange={e => setPrice(e.target.value)} required name="email" id="input" className="pt-3 h-16 w-full focus:outline-none px-3 font-rubik font-semibold text-sm bg-blue-primary rounded-md" />
                       <label id="main" htmlFor="email" className="main-label text-header absolute left-3 top-6 mb-0.5 font-bold text-xs">PRICE</label>
 
                     </div>
                     <div className="relative">
-                      <input value={salePrice} onChange={e => setSalePrice(e.target.value)} required name="email" id="input" className="pt-3 h-16 w-full focus:outline-none font-rubik font-medium px-3 text-sm bg-blue-primary rounded-md" />
+                      <input value={salePrice} onChange={e => setSalePrice(e.target.value)} required name="email" id="input" className="pt-3 h-16 w-full focus:outline-none font-rubik font-semibold px-3 text-sm bg-blue-primary rounded-md" />
                       <label id="main" htmlFor="email" className="main-label text-header absolute left-3 top-6 mb-0.5 font-bold text-xs">SALE PRICE</label>
                     </div>
                   </div>
@@ -162,31 +146,12 @@ const add = () => {
                     }
                     />
                   </div>
-                  {
-                    imageReceived ? (
-                      <div>
-                        {
-                          files?.map(file => {
-                            return(
-                              <img src={file.preview} alt="" className="w-full h-auto  grid items-center bg-blue-900 object-contain" />
-                            )
-                          })
-                        }
+                  <div className="flex flex-col h-64">
+                    <div className="relative">
+                        <input value={url} onChange={e => setUrl(e.target.value)} required type="text" name="email" id="input" className="pt-3 h-16 w-full focus:outline-none px-3 font-semibold bg-blue-primary rounded-md text-sm" />
+                        <label id="main" htmlFor="email" className=" main-label text-header absolute left-3 top-6 mb-0.5 font-bold text-xs">PRODUCT URL</label>
                       </div>
-                    ) : (
-                      <div className="flex flex-col h-64">
-                        <div {...getRootProps()} className="cursor-pointer h-full flex-1 rounded-md uppercase text-sm font-bold w-full bg-blue-primary flex items-center justify-center">
-                          <input type="text" {...getInputProps()} />
-                          <p>Drag or drop</p>
-                        </div>
-                        <span className="my-1 text-gray-400 flex justify-center">⇜ OR ⇝</span>
-                        <div className="relative">
-                            <input value={url} onChange={e => setUrl(e.target.value)} required type="text" name="email" id="input" className="pt-3 h-16 w-full focus:outline-none px-3 font-semibold bg-blue-primary rounded-md text-sm" />
-                            <label id="main" htmlFor="email" className=" main-label text-header absolute left-3 top-6 mb-0.5 font-bold text-xs">PRODUCT URL</label>
-                          </div>
-                      </div>
-                    )
-                  }
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3 ">
                   <div className="relative">
@@ -203,8 +168,8 @@ const add = () => {
                           categoryOpen && (
                             <ul className="w-full absolute top-full mt-3  py-2 rounded-md bg-blue-primary">
                               <li onClick={() => handleCategoryChange('KEYBOARD')} className="py-2 px-2 w-11/12 m-auto hover:bg-blue-secondary cursor-pointer text-sm uppercase">KEYBOARD</li>
-                              <li onClick={() => handleCategoryChange('GPU')} className="py-2 px-2 w-11/12 m-auto hover:bg-blue-secondary cursor-pointer text-sm uppercase">GPU</li>
-                              <li onClick={() => handleCategoryChange('MOUSE')} className="py-2 px-2 w-11/12 m-auto hover:bg-blue-secondary cursor-pointer text-sm uppercase">MOUSE</li>
+                              <li onClick={() => handleCategoryChange('MONITOR')} className="py-2 px-2 w-11/12 m-auto hover:bg-blue-secondary cursor-pointer text-sm uppercase">MONITOR</li>
+                              <li onClick={() => handleCategoryChange('MOUSE')} className="py-2 px-2 w-11/12 m-auto hover:bg-blue-secondary cursor-pointer text-sm uppercase">MICE</li>
                               <li onClick={() => handleCategoryChange('HEADPHONE')} className="py-2 px-2 w-11/12 m-auto hover:bg-blue-secondary cursor-pointer text-sm uppercase">HEADPHONE</li>
                             </ul>
                           )
@@ -228,15 +193,23 @@ const add = () => {
                     </div>
                   </div>
                 </div>
-                <button type="submit" className="mt-3 bg-green-600 w-20 flex items-center justify-center text-sm font-bold rounded-md py-3">
-                  {
-                    isLoading ? (
+                <div className="flex">
+
+                {
+                  isLoading   ? (
+                    <button disabled className="mt-3 bg-green-600 w-20 flex items-center justify-center text-sm font-bold rounded-md py-3 cursor-not-allowed">
                       <RefreshIcon className="text-white h-5 w-5 animate-spin" /> 
-                    ) : (
-                      'ADD'
-                    )
-                  }
-                  </button>
+                    </button>
+                  ) : (
+                    <button onClick={editProduct}  type="submit" className="mt-3 bg-green-600 w-20 flex items-center justify-center text-sm font-bold rounded-md py-3">
+                      UPDATE
+                    </button>
+                  )
+                }
+                <button className="mt-3 ml-2 bg-blue-primary w-20 flex items-center justify-center text-sm font-bold rounded-md py-3">
+                  CANCEL
+                </button>
+                </div>
               </form>
             </div>
           </div>
