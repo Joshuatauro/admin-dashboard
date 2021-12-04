@@ -6,7 +6,8 @@ module.exports = {
     extend: {
       fontFamily: {
         raleway: ['raleway'],
-        rubik: ['rubik']
+        rubik: ['rubik'],
+        inter: ['inter']
       },
       colors: {
         'gray-primary': '#1F2937',
