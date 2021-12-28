@@ -26,7 +26,7 @@ export const getServerSideProps = async(context) => {
   } 
 }
 
-const add = ({productDetails, id}) => {
+const edit = ({productDetails, id}) => {
   const router = useRouter()
 
   
@@ -219,4 +219,4 @@ const add = ({productDetails, id}) => {
   )
 }
 
-export default add
+export default edit

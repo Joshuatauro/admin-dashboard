@@ -3,7 +3,7 @@ import Card from '../components/Card'
 import Navbar from '../components/Navbar'
 import Masonry, {ResponsiveMasonry} from "react-responsive-masonry"
 import { TrendingUpIcon, CurrencyDollarIcon, GiftIcon, UserAddIcon, TruckIcon, ViewGridIcon, HomeIcon, ShoppingBagIcon } from '@heroicons/react/outline'
-import { StarIcon } from '@heroicons/react/solid'
+
 import ReviewPreview from '../components/ReviewPreview'
 import NewUserPreview from '../components/NewUserPreview'
 import axios from 'axios'

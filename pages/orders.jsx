@@ -17,7 +17,7 @@ export default function Orders({orderData}) {
   return (
     <div className="flex">
       <Navbar />
-      <div className="w-full min-h-screen bg-blue-secondary h-4">
+      <div className="w-full min-h-screen bg-blue-secondary">
         <div className="w-11/12 m-auto my-5">
           <h1 className=" font-extrabold text-white text-2xl uppercase ">Latest Orders</h1>
           <p className="text-gray-400 text-sm ">Control the delivery status of different orders without much hassle</p>
